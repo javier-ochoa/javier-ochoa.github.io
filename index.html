@@ -46,24 +46,37 @@ function sendMessage() {
 
   if (message.trim() === "") return;
 
+  // Añadir el mensaje del usuario a la interfaz de chat
   var userDiv = document.createElement("div");
   userDiv.textContent = "Tú: " + message;
   document.getElementById("chat-box").appendChild(userDiv);
 
-  fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+  // Configuración de los mensajes para el modelo ChatGPT
+  var payload = {
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "system",
+        content: "You are a helpful assistant."
+      },
+      {
+        role: "user",
+        content: message
+      }
+    ]
+  };
+
+  fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer sk-proj-M408IGQKr41b0f1cGU0JT3BlbkFJPsRBJDyJDvGelAZ1fkwU'
     },
-    body: JSON.stringify({
-      prompt: message,
-      max_tokens: 150
-    })
+    body: JSON.stringify(payload)
   })
   .then(response => response.json())
   .then(data => {
-    var gptResponse = data.choices[0].text.trim();
+    var gptResponse = data.choices[0].message.content;
     var gptDiv = document.createElement("div");
     gptDiv.textContent = "ChatGPT: " + gptResponse;
     document.getElementById("chat-box").appendChild(gptDiv);
